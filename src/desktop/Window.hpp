@@ -354,9 +354,7 @@ class CWindow {
 
     // swallowing
     PHLWINDOWREF m_pSwallowed;
-    PHLWINDOWREF m_pSwallowedBy;
-    bool         m_bCurrentlySwallowing = false;
-    bool         m_bGroupSwallowed      = false;
+    bool         m_bGroupSwallowed = false;
 
     // focus stuff
     bool m_bStayFocused = false;

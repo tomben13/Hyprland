@@ -2318,20 +2318,16 @@ SDispatchResult CKeybindManager::toggleSwallow(std::string args) {
     if (!valid(pWindow) || !valid(pWindow->m_pSwallowed))
         return {};
 
-    if (pWindow->m_bCurrentlySwallowing) {
+    if (pWindow->m_pSwallowed->isHidden()) {
         // Unswallow
         pWindow->m_pSwallowed->setHidden(false);
         g_pLayoutManager->getCurrentLayout()->onWindowCreated(pWindow->m_pSwallowed);
-
-        pWindow->m_bCurrentlySwallowing = false;
     } else {
         // Reswallow
         g_pLayoutManager->getCurrentLayout()->onWindowRemoved(pWindow->m_pSwallowed);
         pWindow->m_pSwallowed->setHidden(true);
 
         g_pLayoutManager->getCurrentLayout()->recalculateMonitor(pWindow->m_iMonitorID);
-
-        pWindow->m_bCurrentlySwallowing = true;
     }
 
     return {};
