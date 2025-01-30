@@ -113,6 +113,7 @@ CKeybindManager::CKeybindManager() {
     m_mDispatchers["focuswindowbyclass"]             = focusWindow;
     m_mDispatchers["focuswindow"]                    = focusWindow;
     m_mDispatchers["tagwindow"]                      = tagWindow;
+    m_mDispatchers["toggleswallow"]                  = toggleSwallow;
     m_mDispatchers["submap"]                         = setSubmap;
     m_mDispatchers["pass"]                           = pass;
     m_mDispatchers["sendshortcut"]                   = sendshortcut;
@@ -2306,6 +2307,31 @@ SDispatchResult CKeybindManager::tagWindow(std::string args) {
     if (PWINDOW && PWINDOW->m_tags.applyTag(vars[0])) {
         PWINDOW->updateDynamicRules();
         g_pCompositor->updateWindowAnimatedDecorationValues(PWINDOW->m_pSelf.lock());
+    }
+
+    return {};
+}
+
+SDispatchResult CKeybindManager::toggleSwallow(std::string args) {
+    PHLWINDOWREF pWindow = g_pCompositor->m_pLastWindow;
+
+    if (!valid(pWindow) || !valid(pWindow->m_pSwallowed))
+        return {};
+
+    if (pWindow->m_bCurrentlySwallowing) {
+        // Unswallow
+        pWindow->m_pSwallowed->setHidden(false);
+        g_pLayoutManager->getCurrentLayout()->onWindowCreated(pWindow->m_pSwallowed);
+
+        pWindow->m_bCurrentlySwallowing = false;
+    } else {
+        // Reswallow
+        g_pLayoutManager->getCurrentLayout()->onWindowRemoved(pWindow->m_pSwallowed);
+        pWindow->m_pSwallowed->setHidden(true);
+
+        g_pLayoutManager->getCurrentLayout()->recalculateMonitor(pWindow->m_iMonitorID);
+
+        pWindow->m_bCurrentlySwallowing = true;
     }
 
     return {};

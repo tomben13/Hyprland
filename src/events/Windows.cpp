@@ -632,6 +632,9 @@ void Events::listener_mapWindow(void* owner, void* data) {
 
     // swallow
     if (SWALLOWER) {
+        SWALLOWER->m_pSwallowedBy       = PWINDOW;
+        PWINDOW->m_bCurrentlySwallowing = true;
+
         g_pLayoutManager->getCurrentLayout()->onWindowRemoved(SWALLOWER);
         g_pHyprRenderer->damageWindow(SWALLOWER);
         SWALLOWER->setHidden(true);
@@ -732,7 +735,13 @@ void Events::listener_unmapWindow(void* owner, void* data) {
         g_pLayoutManager->getCurrentLayout()->onWindowCreated(PWINDOW->m_pSwallowed.lock());
 
         PWINDOW->m_pSwallowed->m_bGroupSwallowed = false;
+        PWINDOW->m_pSwallowed->m_pSwallowedBy.reset();
         PWINDOW->m_pSwallowed.reset();
+    }
+    // swallowed
+    if (valid(PWINDOW->m_pSwallowedBy)) {
+        PWINDOW->m_pSwallowedBy->m_pSwallowed.reset();
+        PWINDOW->m_pSwallowedBy.reset();
     }
 
     bool wasLastWindow = false;
